@@ -15,6 +15,7 @@ RUN apk add --no-cache openjdk8 curl tar && \
     chmod +x /usr/local/tomcat/bin/*.sh
 
 COPY index.jsp /usr/local/tomcat/webapps/ROOT/
+COPY loginAction.jsp /usr/local/tomcat/webapps/ROOT/
 
 
 # 최종 단계
