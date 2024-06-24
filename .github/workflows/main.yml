@@ -1,36 +1,29 @@
-name: Staging
-#
+name: Build and Push Docker Image to HNH Cloud NCR
+
 on:
   push:
-    branches: [main] # main 브랜치에 푸시 발생 시 실행
+    branches:
+      - NHN
 
 jobs:
-  staging:
-    name: deploy to staging # 작업의 이름
-    runs-on: ubuntu-latest # 실행될 작업 환경
-
+  build-and-push:
+    runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3 # 체크아웃 받기
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Github Secret 이름
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Github Secret 이름
-          aws-region: ap-northeast-2 # AWS 리전 선택
+    - name: Log in to HNH Cloud NCR
+      run: |
+        echo "${{ secrets.NCR_SECRET_KEY }}" | docker login 0a522ceb-kr1-registry.container.nhncloud.com/tomcat-login \
+          -u "${{ secrets.NCR_ACCESS_KEY }}" \
+          --password-stdin
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1 # ECR에 로그인
+    - name: Build Docker image
+      run: docker build -t 0a522ceb-kr1-registry.container.nhncloud.com/tomcat-login/test:${{ github.run_number }} .
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: tomcat-login # ECR 리포지토리 이름
-          IMAGE_TAG: ${{ github.run_number }} # 이미지 태그를 git run number로 설정
-        run: |
-          # Docker 이미지를 빌드하고 ECR에 푸시
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    - name: Push Docker image to HNH Cloud NCR
+      run: docker push 0a522ceb-kr1-registry.container.nhncloud.com/tomcat-login/test:${{ github.run_number }}
+
+    - name: Log out from HNH Cloud NCR
+      run: docker logout 0a522ceb-kr1-registry.container.nhncloud.com
