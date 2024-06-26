@@ -9,8 +9,8 @@ pipeline {
         IMAGE_TAG = "${BUILD_NUMBER}"  // 이미지 태그, 빌드 번호로 설정
         DOCKERFILE_PATH = 'Dockerfile'  // Dockerfile 경로
         DOCKER_IMAGE_NAME = 'tomcat-login'  // Docker 이미지 이름
-        NHN_ACCESS_KEY = '"${{ secrets.NCR_ACCESS_KEY }}"' // NHN Cloud Access Key, NHN 계정의 Access Key
-        NHN_SECRET_KEY = '"${{ secrets.NCR_SECRET_KEY }}"' // NHN Cloud Secret Key, NHN 계정의 Secret Key
+        NHN_ACCESS_KEY = "${{ secrets.NCR_ACCESS_KEY }}" // NHN Cloud Access Key, NHN 계정의 Access Key
+        NHN_SECRET_KEY = "${{ secrets.NCR_SECRET_KEY }}" // NHN Cloud Secret Key, NHN 계정의 Secret Key
     }
 
     stages {
